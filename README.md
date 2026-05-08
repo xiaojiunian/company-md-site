@@ -29,6 +29,24 @@ npm run preview
 http://localhost:4321/
 ```
 
+## 改动检查
+
+查看当前改动和即将推送的提交：
+
+```bash
+npm run changes
+```
+
+仓库已配置 GitHub Actions 检查：`.github/workflows/site-check.yml`。
+
+每次有人提交到 `main` 或发起 Pull Request 时，GitHub 会自动：
+
+1. 在 Actions 页面展示本次提交说明和改动文件。
+2. 构建预览页面。
+3. 检查生成的 HTML、CSS 和头部背景图是否存在。
+
+如果要让这个检查真正拦截所有人，需要在 GitHub 仓库里设置 `main` 分支保护，并把 `site-check` 设为必需检查。
+
 ## 发布到 GitHub Pages
 
 1. 把这些文件上传到你的 GitHub 仓库。

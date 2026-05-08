@@ -1,0 +1,70 @@
+name: Site check
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  site-check:
+    name: site-check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show change summary
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+            HEAD="${{ github.sha }}"
+          fi
+
+          if [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            BASE="$(git rev-parse "$HEAD^" 2>/dev/null || true)"
+          fi
+
+          echo "## Change summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "### Commits" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$BASE" ]; then
+            git log --oneline "$BASE..$HEAD" >> "$GITHUB_STEP_SUMMARY"
+          else
+            git log --oneline -1 "$HEAD" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "### Changed files" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$BASE" ]; then
+            git diff --name-status "$BASE..$HEAD" >> "$GITHUB_STEP_SUMMARY"
+          else
+            git show --name-status --format="" "$HEAD" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Build preview HTML
+        run: npm run build:preview
+
+      - name: Verify generated site
+        shell: bash
+        run: |
+          test -f _site/index.html
+          test -f _site/assets/css/style.css
+          test -f _site/assets/images/hero-tech.png
+          grep -q "hero-tech.png" _site/index.html
