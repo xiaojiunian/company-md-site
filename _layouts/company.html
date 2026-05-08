@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title }} - {{ site.title }}</title>
+    <meta name="description" content="{{ page.description }}">
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="{{ '/' | relative_url }}">示例科技</a>
+      <nav aria-label="主导航">
+        <a href="#services">服务</a>
+        <a href="mailto:hello@example.com">联系</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Company Profile</p>
+          <h1>{{ page.hero_title }}</h1>
+          <p class="lead">{{ page.hero_subtitle }}</p>
+          <a class="button" href="{{ page.cta_link }}">{{ page.cta_text }}</a>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="metric-panel">
+            <span>内容流程</span>
+            <strong>MD → HTML → Online</strong>
+          </div>
+          <div class="service-grid">
+            <span>官网</span>
+            <span>产品页</span>
+            <span>案例</span>
+            <span>知识库</span>
+          </div>
+        </div>
+      </section>
+
+      <article class="content">
+        {{ content }}
+      </article>
+    </main>
+  </body>
+</html>

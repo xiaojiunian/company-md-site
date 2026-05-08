@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "build:preview": "node scripts/build-preview.mjs",
+    "preview": "node scripts/serve-preview.mjs"
+  }
+}
