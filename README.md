@@ -17,6 +17,18 @@ _layouts/company.html
 assets/css/style.css
 ```
 
+新增子页面时，可以参考：
+
+```txt
+canopy-how-it-works.md
+```
+
+这个文件会生成：
+
+```txt
+canopy-how-it-works.html
+```
+
 ## 本地预览
 
 ```bash

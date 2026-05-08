@@ -1,4 +1,5 @@
-import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { basename } from "node:path";
 
 const site = {
   title: "公司官网介绍页",
@@ -113,25 +114,37 @@ function renderLayout(layout, page, content) {
 }
 
 export async function buildPreview() {
-  const [markdown, layout, css] = await Promise.all([
-    readFile("index.md", "utf8"),
+  const [files, layout, css] = await Promise.all([
+    readdir("."),
     readFile("_layouts/company.html", "utf8"),
     readFile("assets/css/style.css", "utf8"),
   ]);
 
-  const [page, markdownContent] = parseFrontmatter(markdown);
-  const content = renderMarkdown(markdownContent);
-  const html = renderLayout(layout, page, content);
-
   await mkdir("_site/assets/css", { recursive: true });
-  await writeFile("_site/index.html", html);
   await writeFile("_site/assets/css/style.css", css);
   await cp("assets/images", "_site/assets/images", { recursive: true });
 
-  return "_site/index.html";
+  const builtFiles = [];
+  const markdownFiles = files.filter((file) => file.endsWith(".md") && file !== "README.md");
+
+  for (const file of markdownFiles) {
+    const markdown = await readFile(file, "utf8");
+    const [page, markdownContent] = parseFrontmatter(markdown);
+
+    if (!page.layout) continue;
+
+    const content = renderMarkdown(markdownContent);
+    const html = renderLayout(layout, page, content);
+    const output = file === "index.md" ? "index.html" : `${basename(file, ".md")}.html`;
+
+    await writeFile(`_site/${output}`, html);
+    builtFiles.push(`_site/${output}`);
+  }
+
+  return builtFiles;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const output = await buildPreview();
-  console.log(`Built ${output}`);
+  const outputs = await buildPreview();
+  console.log(`Built ${outputs.join(", ")}`);
 }

@@ -65,6 +65,8 @@ jobs:
         shell: bash
         run: |
           test -f _site/index.html
+          test -f _site/canopy-how-it-works.html
           test -f _site/assets/css/style.css
           test -f _site/assets/images/hero-tech.png
           grep -q "hero-tech.png" _site/index.html
+          grep -q "Canopy 工作方式" _site/canopy-how-it-works.html
