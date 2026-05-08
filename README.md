@@ -21,12 +21,14 @@ assets/css/style.css
 
 ```txt
 canopy-how-it-works.md
+pages/news.md
 ```
 
-这个文件会生成：
+这些文件会生成：
 
 ```txt
 canopy-how-it-works.html
+pages/news.html
 ```
 
 ## 本地预览

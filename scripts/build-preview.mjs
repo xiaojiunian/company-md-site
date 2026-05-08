@@ -1,5 +1,5 @@
 import { cp, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
-import { basename } from "node:path";
+import { dirname, join } from "node:path";
 
 const site = {
   title: "公司官网介绍页",
@@ -38,7 +38,26 @@ function parseFrontmatter(source) {
 }
 
 function renderInline(value) {
-  return escapeHtml(value).replaceAll(/`([^`]+)`/g, "<code>$1</code>");
+  const source = String(value);
+  const pattern = /`([^`]+)`|\[([^\]]+)\]\(([^)]+)\)/g;
+  let cursor = 0;
+  let output = "";
+  let match;
+
+  while ((match = pattern.exec(source))) {
+    output += escapeHtml(source.slice(cursor, match.index));
+
+    if (match[1]) {
+      output += `<code>${escapeHtml(match[1])}</code>`;
+    } else {
+      output += `<a href="${escapeHtml(match[3])}">${escapeHtml(match[2])}</a>`;
+    }
+
+    cursor = pattern.lastIndex;
+  }
+
+  output += escapeHtml(source.slice(cursor));
+  return output;
 }
 
 function renderMarkdown(source) {
@@ -113,9 +132,30 @@ function renderLayout(layout, page, content) {
     .replaceAll(/\{\{\s*'([^']+)'\s*\|\s*relative_url\s*\}\}/g, (_, path) => relativeUrl(path));
 }
 
+async function findMarkdownFiles(directory = ".") {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const file = join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      if ([".git", "_site", "assets", "node_modules"].includes(entry.name)) continue;
+      files.push(...(await findMarkdownFiles(file)));
+      continue;
+    }
+
+    if (entry.isFile() && entry.name.endsWith(".md") && entry.name !== "README.md") {
+      files.push(file.replace(/^\.\//, ""));
+    }
+  }
+
+  return files.sort();
+}
+
 export async function buildPreview() {
-  const [files, layout, css] = await Promise.all([
-    readdir("."),
+  const [markdownFiles, layout, css] = await Promise.all([
+    findMarkdownFiles(),
     readFile("_layouts/company.html", "utf8"),
     readFile("assets/css/style.css", "utf8"),
   ]);
@@ -125,7 +165,6 @@ export async function buildPreview() {
   await cp("assets/images", "_site/assets/images", { recursive: true });
 
   const builtFiles = [];
-  const markdownFiles = files.filter((file) => file.endsWith(".md") && file !== "README.md");
 
   for (const file of markdownFiles) {
     const markdown = await readFile(file, "utf8");
@@ -135,8 +174,9 @@ export async function buildPreview() {
 
     const content = renderMarkdown(markdownContent);
     const html = renderLayout(layout, page, content);
-    const output = file === "index.md" ? "index.html" : `${basename(file, ".md")}.html`;
+    const output = file === "index.md" ? "index.html" : file.replace(/\.md$/, ".html");
 
+    await mkdir(dirname(`_site/${output}`), { recursive: true });
     await writeFile(`_site/${output}`, html);
     builtFiles.push(`_site/${output}`);
   }
