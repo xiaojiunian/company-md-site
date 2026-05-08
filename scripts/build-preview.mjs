@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
 
 const site = {
   title: "公司官网介绍页",
@@ -104,6 +104,7 @@ function renderLayout(layout, page, content) {
     .replaceAll("{{ page.description }}", escapeHtml(page.description ?? ""))
     .replaceAll("{{ page.hero_title }}", escapeHtml(page.hero_title ?? ""))
     .replaceAll("{{ page.hero_subtitle }}", escapeHtml(page.hero_subtitle ?? ""))
+    .replaceAll("{{ page.hero_image | relative_url }}", relativeUrl(page.hero_image ?? ""))
     .replaceAll("{{ page.cta_link }}", escapeHtml(page.cta_link ?? "#"))
     .replaceAll("{{ page.cta_text }}", escapeHtml(page.cta_text ?? "了解更多"))
     .replaceAll("{{ site.title }}", escapeHtml(site.title))
@@ -125,6 +126,7 @@ export async function buildPreview() {
   await mkdir("_site/assets/css", { recursive: true });
   await writeFile("_site/index.html", html);
   await writeFile("_site/assets/css/style.css", css);
+  await cp("assets/images", "_site/assets/images", { recursive: true });
 
   return "_site/index.html";
 }

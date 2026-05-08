@@ -38,3 +38,9 @@ http://localhost:4321/
 5. 保存后等待 GitHub Pages 构建完成。
 
 之后每次修改 `index.md` 并推送到 GitHub，线上页面会自动更新。
+
+线上地址通常是：
+
+```txt
+https://xiaojiunian.github.io/company-md-site/
+```

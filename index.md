@@ -4,6 +4,7 @@ title: 公司简介
 description: 一家专注于企业数字化与智能化解决方案的科技公司
 hero_title: 让企业介绍页像产品一样清晰、有质感
 hero_subtitle: 用 Markdown 管理内容，用固定设计样式发布成线上官网页面。
+hero_image: /assets/images/hero-tech.png
 cta_text: 了解我们的服务
 cta_link: "#services"
 ---

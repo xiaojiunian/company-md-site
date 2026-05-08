@@ -1,3 +1,5 @@
 title: 公司官网介绍页
 description: Markdown 自动生成官网页面
+url: https://xiaojiunian.github.io
+baseurl: /company-md-site
 markdown: kramdown
